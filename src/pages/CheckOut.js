@@ -57,7 +57,7 @@ export default function CheckOut() {
 
         }
         // Handle form submission logic here
-        console.log('Submitted user:', user);
+        // console.log('Submitted user:', user);
     };
 
     return (

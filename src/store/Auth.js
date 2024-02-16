@@ -4,7 +4,7 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem("token"))
-    console.log("token from auth",token)
+    // console.log("token from auth",token)
     const[user,setUser]=useState("")
     const storeTokenInLS = (serverToken) => {
 
@@ -12,10 +12,12 @@ export const AuthProvider = ({ children }) => {
     }
     let isLoggedIn = !!token;
     //taklink the logout functionality 
+    // console.log("this is from Auth",isLoggedIn)
 
-    const LogOutUser = () => {
-        setToken("");
-        return localStorage.removeItem(token)
+    const LogOutUser = ()=> {
+        setToken(" ");
+        // console.log("this is from LogOutUser")
+        return localStorage.removeItem("token")
 
     }
 
@@ -32,7 +34,7 @@ export const AuthProvider = ({ children }) => {
             if(response.ok){
                 const data =await response.json()
                 setUser(data);
-                console.log("user data from Auth ",data)
+                // console.log("user data from Auth ",data)
             }
         } catch (error) {
            console.error('error fetching user data') 

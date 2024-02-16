@@ -5,12 +5,13 @@ import { useAuth } from '../store/Auth'
 export default function LogOut() {
   const [token, setToken] = useState(localStorage.getItem("token"));
   const { LogOutUser } = useAuth()
-
+     
   useEffect(() => {
+    console.log("this is from logout")
     LogOutUser();
 
-  }, [LogOutUser])
+  },[LogOutUser,token])
   return (
-    <Navigate to="/login" />
+    <Navigate to="/" />
   )
 }

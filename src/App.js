@@ -1,6 +1,6 @@
 // App.js
-import React, { Profiler, useEffect, useState } from 'react';
-import CalendarComponent from './component/CalendarComponent';
+import React, {  useEffect, useState ,Image} from 'react';
+// import CalendarComponent from './component/CalendarComponent';
 import Login from './component/Login';
 import Profile from './component/Profile'
 import HomePage from './component/HomePage'
@@ -10,14 +10,18 @@ import NavBar from './component/NavBar';
 import LogOut from './component/LogOut';
 import ErrorPageForMobile from './pages/ErrorPageForMobile';
 import axios from 'axios';
+import AttendanceDashboard from './component/AttendanceDashboard';
+import PrivateRoute from './component/PrivateRoute';
+import PageNoteFaund from './pages/PageNoteFaund';
+// import LogoImage from "./assets/LogoDesign.jpg.png"
 
 const App = () => {
-  const [myIpAddress, setMyIpAddress] = useState(['2401:4900:1c5d:63e6:5c7d:bcb6:42b8:5854','2401:4900:1c5d:3bdb:6cfd:1202:b977:256','2401:4900:1c5d:3bdb:516:10ac:c464:b658','2401:4900:1c5d:63e6:b0d1:2c11:aff5:75ab']);
+  const [myIpAddress, setMyIpAddress] = useState(['2401:4900:1c5a:7e59:ad56:6ccc:3e97:f3d4','2401:4900:1c5a:a03c:fd95:1c0c:1383:1020','2401:4900:1c5a:eb12:8562:5d31:4c30:9806','2401:4900:1c5a:eb12:888d:2d6c:4bf6:8c77','2401:4900:1c5d:63e6:5c7d:bcb6:42b8:5854','2401:4900:1c5d:3bdb:6cfd:1202:b977:256','2401:4900:1c5d:3bdb:516:10ac:c464:b658','2401:4900:1c5d:63e6:b0d1:2c11:aff5:75ab']);
   const[ip,setIp]=useState('');
   const[isDesktop,setIsDesktop]=useState(false);
    useEffect(()=>{
     const checkScreenSize=()=>{
-      setIsDesktop(window.innerWidth > 700 && window.innerHeight > 500 && myIpAddress.includes(ip))
+      setIsDesktop(window.innerWidth > 400 && window.innerHeight > 300 && myIpAddress.includes(ip))
     }
     //Initial check 
     checkScreenSize();
@@ -35,7 +39,7 @@ const App = () => {
    },[])
    const getUserIP= async ()=>{
     const ip= await axios.get('https://ipapi.co/json');
-    console.log(ip.data);
+    // console.log(ip.data);
     setIp(ip.data.ip)
 
    }
@@ -43,13 +47,14 @@ const App = () => {
     // Check if user's IP is included in the allowed list
     const isUserAllowed = myIpAddress.includes(ip);
     
-    setIsDesktop(isUserAllowed && window.innerWidth > 700 && window.innerHeight > 500);
+    setIsDesktop(isUserAllowed && window.innerWidth > 400 && window.innerHeight > 300);
   }, [ip, myIpAddress]);
   return (
     <>
       {isDesktop?(
         <>
         <Router>
+     
         <div>
         
           <NavBar/>
@@ -60,6 +65,12 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/Register" element={<Register />} />
+           
+            <Route path='/private' element={<PrivateRoute/>}>             
+            <Route path="AttendanceDashboard" element={<AttendanceDashboard/>} />
+            </Route>
+            <Route path="*" element={<PageNoteFaund />} />
+
           </Routes>
         </div>
       </Router>
@@ -73,6 +84,7 @@ const App = () => {
        <div style={{display:"flex",flexDirection:"column",flexWrap:"wrap"}}>
       <h1 style={{fontSize:"2vh"}}>IP Address:{ip}</h1>
       </div>
+      
     </>
   );
 };
