@@ -130,8 +130,12 @@ import { useAsyncError, useNavigate} from 'react-router-dom';
 import {  toast } from 'react-toastify';
 import { Navigate,Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+import Camera from '../pages/Camera';
+import axios from 'axios';
 
 function AttendanceDashboard() {
+  const [imageData, setImageData] = useState('');
+  const[fetchImageData,setFetchImageData]=useState([])
   //this is the variable for count total half day
   const[totalHalfDays,setTotalHalfDays]=useState(0)
   //this is the state that store total working day
@@ -172,6 +176,47 @@ const userData=[{date:"06-02-2024",checkInTime:"90:00Am",checkOutTime:"7:00pm"},
 console.log(userData.length)
  const navigation=useNavigate()
  
+ 
+ const captureImage = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+    const video = document.createElement('video');
+    document.body.appendChild(video);
+    video.srcObject = stream;
+
+    // Wait for the video metadata to be loaded
+    await new Promise(resolve => {
+      video.onloadedmetadata = () => {
+        // Start playing the video once metadata is loaded
+        video.play();
+        resolve();
+      };
+    });
+
+    // Capture the image from the video stream
+    const canvas = document.createElement('canvas');
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    const context = canvas.getContext('2d');
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const dataUrl = canvas.toDataURL('image/png');
+
+    setImageData(dataUrl);
+
+    // Stop the video stream and remove the video element
+    video.pause();
+    stream.getTracks().forEach(track => track.stop());
+    document.body.removeChild(video);
+    return dataUrl
+  } catch (error) {
+    console.error('Error capturing image:', error);
+  }
+};
+// useEffect(()=>{
+//   captureImage()
+// },[])
+
+// captureImage()
  
   const countWorkingDay=()=>{
     
@@ -217,7 +262,11 @@ console.log(userData.length)
 const locationurl=`https://maps.google.com/?q=${location.latitude},${location.longitude}`
 
   const handleCheckIn = async () => {
+   
     try {
+
+      // const imageofuser=await captureImage()
+      
       const response = await fetch('http://localhost:9000/attendance/checkIn', {
         method: 'POST',
         headers: {
@@ -231,7 +280,8 @@ const locationurl=`https://maps.google.com/?q=${location.latitude},${location.lo
               checkIn: new Date().toLocaleTimeString('en-US', { hour: 'numeric',minute: '2-digit', second: '2-digit',hour12: true}),
               checkOut: " ",
               latitude:location.latitude,
-              longitude:location.longitude
+              longitude:location.longitude,
+              userImage:imageData
 
             },
             
@@ -252,7 +302,7 @@ const locationurl=`https://maps.google.com/?q=${location.latitude},${location.lo
       console.error('Error during check-in:', error);
     }
   };
- 
+
   const handleCheckOut = async () => {
     try {
       const response = await fetch('http://localhost:9000/attendance/checkOut', {
@@ -266,7 +316,9 @@ const locationurl=`https://maps.google.com/?q=${location.latitude},${location.lo
             {
               date: new Date().toDateString(),
               checkOut: new Date().toLocaleTimeString('en-US', { hour: 'numeric',minute: '2-digit', second: '2-digit',hour12: true})
-              
+             ,
+              userImage:imageData
+
             },
             
           ]
@@ -455,8 +507,10 @@ function isHoliday(date) {
     // For the sake of simplicity, let's assume there is no holiday in this example
     return false;
 }
-console.log(attendanceData)
 
+
+console.log(attendanceData)
+console.log(imageData)
   return (
     <>
     <div style={{display:"flex", backgroundColor:"white",color:"black", flexDirection:"column",height:'',gap:"2vh",}} > 
@@ -465,13 +519,20 @@ console.log(attendanceData)
         <input type="text" id="email" value={email} onChange={handleEmailChange} />
         <button onClick={getAttendanceData}>Get Attendance Data</button>
       </div>
+
+      <div style={{display:"flex", justifyContent:"center",alignItems:"center", position:"absolute", marginLeft:"50%",marginTop:"10vh"}}>
+      {/* <Camera/> */}
+       <div><img src={imageData} alt="" style={{height:"8vh",width:"8vh", borderRadius:"50%"}}/></div>   
+
+      </div>
+     
      {showButton? <div style={{display:"flex", justifyContent:"end", marginLeft:"10vh"}}>
         {/* <label htmlFor="checkInTime">Check In Time:</label>
         <input type="text" id="checkInTime" value={checkInTime} onChange={handleCheckInChange} /> */}
        
         <button onClick={handleCheckIn}style={{padding:"3vh", backgroundColor:"#d7d7db",borderRadius:"10vh", color:"green" ,boxShadow:"1px 1px 10px green",marginRight:"10vh",marginTop:"8vh"}}>Check In</button>
 
-  
+        
 
       </div>:
       <div style={{display:"flex",justifyContent:"end",marginRight:"10vh"}}>
@@ -519,6 +580,7 @@ console.log(attendanceData)
       <p>Total Late Check-Ins: {totalLateCheckIns}</p>
         
       <p>Total AbsentDays: {absentDays}</p>
+      
       </div>
 
       </div>
@@ -532,6 +594,8 @@ console.log(attendanceData)
           <th style={{backgroundColor:"blue",padding:"1vh", color:"white"}}>Check-Out Time</th>
           <th style={{backgroundColor:"blue",padding:"1vh", color:"white"}}>Check In Location</th>
           <th style={{backgroundColor:"blue",padding:"1vh", color:"white"}}>Total Working Hour</th>
+          <th style={{backgroundColor:"blue",padding:"1vh", color:"white"}}>Profile</th>
+
 
 
         </tr>
@@ -593,6 +657,7 @@ console.log(attendanceData)
               <td style={{padding:"1vh"}}>{currentCheckOutTime}</td>
               <td><a href={locationurl}>{showlocationbutton?"checkLocation":""}</a></td>
               <td style={{padding:"1vh"}}>{showlocationbutton?Math.abs(Math.floor(totalhour/(1000*60*60))):""}</td>
+              <td style={{padding:"1vh"}}> <div><img src="https://images.pexels.com/photos/35537/child-children-girl-happy.jpg?cs=srgb&dl=pexels-bess-hamiti-35537.jpg&fm=jpg" alt="" style={{height:"8vh",width:"8vh", borderRadius:"50%"}}/></div>   </td>
 
             </tr>
           );

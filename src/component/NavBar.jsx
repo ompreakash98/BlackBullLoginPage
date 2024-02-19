@@ -8,8 +8,11 @@ export default function NavBar() {
 <div style={{position:"absolute", height:"10vh",width:"15vw",
  backgroundImage:`url("https://media.licdn.com/dms/image/C4D0BAQEVdLYlspgyQA/company-logo_200_200/0/1630454404624/blackbulltechnosoft_logo?e=2147483647&v=beta&t=RnBE1MJArsIaEisRMmI08c_84cqxYBIEEDCJnzNaazA")`
  ,backgroundRepeat:"no-repeat",backgroundPosition:"center" ,
- marginTop:"5vh"
+ marginTop:"10vh"
  }}>
+
+
+
 
 {/* <img src='https://media.licdn.com/dms/image/C4D0BAQEVdLYlspgyQA/company-logo_200_200/0/1630454404624/blackbulltechnosoft_logo?e=2147483647&v=beta&t=RnBE1MJArsIaEisRMmI08c_84cqxYBIEEDCJnzNaazA'>
 </img> */}

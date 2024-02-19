@@ -16,7 +16,7 @@ import PageNoteFaund from './pages/PageNoteFaund';
 // import LogoImage from "./assets/LogoDesign.jpg.png"
 
 const App = () => {
-  const [myIpAddress, setMyIpAddress] = useState(['2401:4900:1c5a:7e59:ad56:6ccc:3e97:f3d4','2401:4900:1c5a:a03c:fd95:1c0c:1383:1020','2401:4900:1c5a:eb12:8562:5d31:4c30:9806','2401:4900:1c5a:eb12:888d:2d6c:4bf6:8c77','2401:4900:1c5d:63e6:5c7d:bcb6:42b8:5854','2401:4900:1c5d:3bdb:6cfd:1202:b977:256','2401:4900:1c5d:3bdb:516:10ac:c464:b658','2401:4900:1c5d:63e6:b0d1:2c11:aff5:75ab']);
+  const [myIpAddress, setMyIpAddress] = useState(['2401:4900:1c5c:27ef:31e9:128b:dce2:3ddc','2401:4900:1c5a:a03c:fd95:1c0c:1383:1020','2401:4900:1c5a:eb12:8562:5d31:4c30:9806','2401:4900:1c5a:eb12:888d:2d6c:4bf6:8c77','2401:4900:1c5d:63e6:5c7d:bcb6:42b8:5854','2401:4900:1c5d:3bdb:6cfd:1202:b977:256','2401:4900:1c5d:3bdb:516:10ac:c464:b658','2401:4900:1c5d:63e6:b0d1:2c11:aff5:75ab']);
   const[ip,setIp]=useState('');
   const[isDesktop,setIsDesktop]=useState(false);
    useEffect(()=>{
