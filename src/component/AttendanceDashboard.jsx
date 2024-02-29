@@ -132,10 +132,12 @@ import { Navigate,Link } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import Camera from '../pages/Camera';
 import axios from 'axios';
+import TestImageUploade from '../pages/TestImageUploade';
 
 function AttendanceDashboard() {
   const [imageData, setImageData] = useState('');
   const[fetchImageData,setFetchImageData]=useState([])
+  const[imageurls,setImagesUrls]=useState([])
   //this is the variable for count total half day
   const[totalHalfDays,setTotalHalfDays]=useState(0)
   //this is the state that store total working day
@@ -175,8 +177,16 @@ const userData=[{date:"06-02-2024",checkInTime:"90:00Am",checkOutTime:"7:00pm"},
 
 console.log(userData.length)
  const navigation=useNavigate()
- 
- 
+ //function for uploding image 
+const uploadImage = async () => {
+  try {
+    await axios.post('http://localhost:7000/upload',{imageData,email});
+    console.log('Image uploaded successfully!');
+  } catch (error) {
+    console.error('Error uploading image:', error);
+  }
+};
+ //this is the function that capture the image from video stream
  const captureImage = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
@@ -200,23 +210,55 @@ console.log(userData.length)
     const context = canvas.getContext('2d');
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     const dataUrl = canvas.toDataURL('image/png');
-
     setImageData(dataUrl);
+    // const base64ImageData = dataUrl.split(',')[1];
+    // const imageDataString = atob(base64ImageData);
+    const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg'));
 
+    
     // Stop the video stream and remove the video element
     video.pause();
     stream.getTracks().forEach(track => track.stop());
     document.body.removeChild(video);
+    await uploadImage()
+    // uploadToBackend(blob);
     return dataUrl
   } catch (error) {
     console.error('Error capturing image:', error);
   }
 };
-// useEffect(()=>{
-//   captureImage()
-// },[])
+const uploadToBackend = async () => {
+  try {
+    const formData = new FormData();
+    formData.append('image', imageData);
 
-// captureImage()
+    await axios.post('http://localhost:7000/upload', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    
+  } catch (error) {
+    console.error('Error uploading image to the backend:', error);
+  }
+};
+
+
+// useEffect(() => {
+//   const fetchImage = async () => {
+//     try {
+//       const response = await axios.get(`http://localhost:9000/fetch/alluserImage`); // Replace 123 with the actual image ID
+//       // console.log(response.data.imageData)
+      
+//       // setFetchImageData(response.data.imageData);
+//     } catch (error) {
+//       console.error('Error fetching image:', error);
+//     }
+//   };
+
+//   fetchImage();
+// }, []);
  
   const countWorkingDay=()=>{
     
@@ -265,7 +307,10 @@ const locationurl=`https://maps.google.com/?q=${location.latitude},${location.lo
    
     try {
 
-      // const imageofuser=await captureImage()
+     await captureImage()
+
+     await uploadImage()
+      
       
       const response = await fetch('http://localhost:9000/attendance/checkIn', {
         method: 'POST',
@@ -305,6 +350,7 @@ const locationurl=`https://maps.google.com/?q=${location.latitude},${location.lo
 
   const handleCheckOut = async () => {
     try {
+
       const response = await fetch('http://localhost:9000/attendance/checkOut', {
         method: 'PATCH',
         headers: {
@@ -356,9 +402,24 @@ const locationurl=`https://maps.google.com/?q=${location.latitude},${location.lo
     }
   };
 
+  const getAllImageurls = async () => {
+    
+    try {
+      const response = await fetch(`http://localhost:7000/images`);
+      const data = await response.json();
+      setImagesUrls(data)
+      // console.log(data)
+    } catch (error) {
+      console.error('Error fetching attendance data:', error);
+    }
+  };
+
   // console.log(attendanceData)
 
   // 
+  useEffect(()=>{
+    getAllImageurls()
+  },[uploadImage])
   const getStatusUserAttendedAlready= async ()=>{
     try {
       const response=await fetch(`http://localhost:9000/attendance/test/${email}/${new Date().toDateString()}`)
@@ -414,6 +475,7 @@ const locationurl=`https://maps.google.com/?q=${location.latitude},${location.lo
         && value.allAttendance[0].checkIn !=="" && value.allAttendance[0].checkOut !=="" ){
           count++
         }
+
      
 
 
@@ -476,7 +538,7 @@ useEffect(()=>{
 
 
 
- // this is the function that count att absent date 
+ // this is the function that count all absent date 
   
   useEffect(() => {
     if (attendanceData.length === 0) return;
@@ -508,9 +570,25 @@ function isHoliday(date) {
     return false;
 }
 
+// useEffect(() => {
+//   const fetchImage = async () => {
+//     try {
+//       const response = await axios.get(`http://localhost:7000/api/images`); // Replace 123 with the actual image ID
+//       // console.log(response.data.imageData[0].data)
+      
+//       setFetchImageData(response.data.imageData);
+//     } catch (error) {
+//       console.error('Error fetching image:', error);
+//     }
+//   };
 
-console.log(attendanceData)
-console.log(imageData)
+//   fetchImage();
+// }, []);
+
+// console.log(attendanceData)
+// console.log(imageData)
+
+console.log("imagesurls===>",imageurls )
   return (
     <>
     <div style={{display:"flex", backgroundColor:"white",color:"black", flexDirection:"column",height:'',gap:"2vh",}} > 
@@ -522,24 +600,28 @@ console.log(imageData)
 
       <div style={{display:"flex", justifyContent:"center",alignItems:"center", position:"absolute", marginLeft:"50%",marginTop:"10vh"}}>
       {/* <Camera/> */}
-       <div><img src={imageData} alt="" style={{height:"8vh",width:"8vh", borderRadius:"50%"}}/></div>   
-
+       {/* <div><img src={imageData} alt="" style={{height:"8vh",width:"8vh", borderRadius:"50%"}}/></div>    */}
+       {/* <button onClick={captureImage}>Capture Image</button> */}
+       <a href=''> <button onClick={uploadImage}>Upload Image</button></a>
       </div>
      
      {showButton? <div style={{display:"flex", justifyContent:"end", marginLeft:"10vh"}}>
         {/* <label htmlFor="checkInTime">Check In Time:</label>
         <input type="text" id="checkInTime" value={checkInTime} onChange={handleCheckInChange} /> */}
+       <>
+        <button onClick={()=>{
+          handleCheckIn()
+          
+        }}style={{padding:"3vh", backgroundColor:"#d7d7db",borderRadius:"10vh", color:"green" ,boxShadow:"1px 1px 10px green",marginRight:"10vh",marginTop:"8vh"}}>Check In</button>
        
-        <button onClick={handleCheckIn}style={{padding:"3vh", backgroundColor:"#d7d7db",borderRadius:"10vh", color:"green" ,boxShadow:"1px 1px 10px green",marginRight:"10vh",marginTop:"8vh"}}>Check In</button>
-
-        
+      </>
 
       </div>:
       <div style={{display:"flex",justifyContent:"end",marginRight:"10vh"}}>
         {/* <label htmlFor="checkOutTime">Check Out Time:</label>
         <input type="text" id="checkOutTime" value={checkOutTime} onChange={handleCheckOutChange} /> */}
        <a style={{ color: "white" }} href='/logout' > 
-        <button onClick={handleCheckOut}style={{backgroundColor:"#d7d7db",padding:"3vh", color:"red",borderRadius:"10vh", boxShadow:"1px 1px 10px red", marginTop:"0",marginBottom:""}}>Check Out</button>
+        <button onClick={handleCheckOut}style={{backgroundColor:"#d7d7db",padding:"3vh", color:"red",borderRadius:"10vh", boxShadow:"1px 1px 10px black", marginTop:"0",marginBottom:""}}>Check Out</button>
       </a>
       </div>
       }
@@ -569,7 +651,7 @@ console.log(imageData)
 
       <p>Total day in This month  <span style={{width:"10vw",padding:"1vh",color:"black"}}>{totalDaysInMonth}</span></p>
 
-       <p>Total working day <span style={{width:"10vw",padding:"1vh",color:"black"}}>{totalworkinDay}</span></p>
+       {/* <p>Total working day <span style={{width:"10vw",padding:"1vh",color:"black"}}>{totalworkinDay}</span></p> */}
        <p>Total HalfDays work <span style={{width:"10vw",padding:"1vh",color:"black"}}>{totalHalfDays}</span></p>
 
       </div>
@@ -588,13 +670,13 @@ console.log(imageData)
     <table  style={{width:"90vw",}}>
       <thead>
         <tr>
-          <th style={{backgroundColor:"blue",padding:"1vh", color:"white"}}>Date</th>
-          <th style={{backgroundColor:"blue",padding:"1vh", color:"white"}}>Day</th>
-          <th style={{backgroundColor:"blue",padding:"1vh", color:"white"}}>Check-In Time</th>
-          <th style={{backgroundColor:"blue",padding:"1vh", color:"white"}}>Check-Out Time</th>
-          <th style={{backgroundColor:"blue",padding:"1vh", color:"white"}}>Check In Location</th>
-          <th style={{backgroundColor:"blue",padding:"1vh", color:"white"}}>Total Working Hour</th>
-          <th style={{backgroundColor:"blue",padding:"1vh", color:"white"}}>Profile</th>
+          <th style={{backgroundColor:"#007fbf",padding:"1vh", color:"white"}}>Date</th>
+          <th style={{backgroundColor:"#007fbf",padding:"1vh", color:"white"}}>Day</th>
+          <th style={{backgroundColor:"#007fbf",padding:"1vh", color:"white"}}>Check-In Time</th>
+          <th style={{backgroundColor:"#007fbf",padding:"1vh", color:"white"}}>Check-Out Time</th>
+          <th style={{backgroundColor:"#007fbf",padding:"1vh", color:"white"}}>Check In Location</th>
+          <th style={{backgroundColor:"#007fbf",padding:"1vh", color:"white"}}>Total Working Hour</th>
+          <th style={{backgroundColor:"#007fbf",padding:"1vh", color:"white"}}>Profile</th>
 
 
 
@@ -609,12 +691,14 @@ console.log(imageData)
           const formattedDay = day.toString().padStart(2, '0'); // Ensure day starts with 0 if less than 10
 
           const formattedDate = `${dayName.slice(0, 3)} ${dateObj.toLocaleString('default', { month: 'short' })} ${formattedDay} ${dateObj.getFullYear()}`;
+          console.log('formateddate====>',formattedDate)
           let currenCheckIntime='';
           let currentCheckOutTime='';
           let latitude='';
           let showlocationbutton=false;
           let longitude=''
           let rowStyle = {}; // Define row style object
+          let img_url=""
           attendanceData.map((value)=>{
             if(value.allAttendance[0].date===formattedDate){
               currenCheckIntime=value.allAttendance[0].checkIn;
@@ -630,12 +714,34 @@ console.log(imageData)
 
           })
 
+          imageurls.map((value)=>{
+            let testurl=value.imagePath
+            console.log("test url",testurl)
+            const parts = testurl.split('_')[0].split('\\')[1]; 
+            console.log("parts",parts)
+            const formattedDatenow = parts.replace(/-/g, ' ');
+            console.log("formatteddata",formattedDatenow)
+            const email = testurl.split('_')[1].split('.')[0];
+            console.log("email",email)
+            const updatedurl = testurl.split('\\')[1];
+            console.log("updatedurl",updatedurl)
+            
+
+            
+            if(formattedDatenow===formattedDate &&email===email){
+              img_url=updatedurl
+            }
+            console.log("img_url",img_url)
+            
+          })
+          // console.log("imagesurl ",img_url)
+
           // Check if check-in time is greater than 10:15
           const isLateCheckIn = currenCheckIntime && new Date(`2000-01-01 ${currenCheckIntime}`) > new Date(`2000-01-01 10:15 AM`);
           const totalhour=new Date(`2000-01-01 ${currenCheckIntime}`)-new Date(`2000-01-01 ${currentCheckOutTime}`)
           console.log("total working hour in onle day",Math.floor(totalhour/(1000 * 60 * 60)))
           if (dayName === 'Sunday' || (dayName === 'Saturday' && (Math.ceil(day / 7) === 2 || Math.ceil(day / 7) === 4))) {
-            rowStyle = { backgroundColor: 'green' };
+            rowStyle = { backgroundColor: '#8AFF8A' };
 
             
             
@@ -657,15 +763,60 @@ console.log(imageData)
               <td style={{padding:"1vh"}}>{currentCheckOutTime}</td>
               <td><a href={locationurl}>{showlocationbutton?"checkLocation":""}</a></td>
               <td style={{padding:"1vh"}}>{showlocationbutton?Math.abs(Math.floor(totalhour/(1000*60*60))):""}</td>
-              <td style={{padding:"1vh"}}> <div><img src="https://images.pexels.com/photos/35537/child-children-girl-happy.jpg?cs=srgb&dl=pexels-bess-hamiti-35537.jpg&fm=jpg" alt="" style={{height:"8vh",width:"8vh", borderRadius:"50%"}}/></div>   </td>
+              <td style={{padding:"1vh"}}>
+        {showlocationbutton ? (
+       <div>
+        <img src={`http://localhost:7000/uploads/${img_url}`} 
+        alt='' style={{height:"10vh",width:"10vh",borderRadius:"50%",
+        transition:"transform 0.2s ease"
+        }} 
+        onMouseOver={(e)=>{
+          e.currentTarget.style.transform='scale(3.2)';
 
+        }}
+
+        onMouseOut={(e)=>{
+          e.currentTarget.style.transform='scale(1)'
+        }}
+        />
+     
+       </div>
+  ) : (
+    <> </>
+  )}
+</td>
             </tr>
           );
         })}
       </tbody>
     </table>
     </div>
-  </div>
+    </div>
+  <div>
+      {imageData && <img src={imageData} alt="Captured" />}
+    
+
+      {/* <div>
+      {imageData && (
+        <img src={`data:image/png;base64,${imageData}`} alt="Uploaded" />
+        
+      )}
+    </div> */}
+    {/* <div>
+        {
+         fetchImageData.map((imagedata)=>{
+            return (
+            <>
+                <img src={`${imagedata.data}`} alt="Uploaded" />
+            </>)
+            
+         })
+        }
+    </div> */}
+
+    </div>
+    {/* <TestImageUploade/>
+     */}
     </>
   );
 }

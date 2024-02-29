@@ -256,7 +256,7 @@ const locationurl=`https://maps.google.com/?q=${location.latitude},${location.lo
             />
           </div>
           <div style={{display:"flex", justifyContent:"end"}}>
-            <Link to='/Register' style={{textDecoration:"none", color:"red"}}>Not Resister?</Link>
+            <Link to='/Register' style={{textDecoration:"none", color:"red"}}>Not Register?</Link>
           </div>
          <a href='/private/AttendanceDashboard'><button type='submit' style={{padding:"1vh",} }>Login Now</button></a> 
         </form>
