@@ -150,8 +150,12 @@ function AttendanceDashboard() {
   const [checkInTime, setCheckInTime] = useState('');
   const [checkOutTime, setCheckOutTime] = useState('');
   const[showLocationButton,setShowLocationButton]=useState(false)
-  const { user } = useAuth()
+  const {user} = useAuth()
+ 
   const [email, setEmail] = useState(user.userData.email);
+  // const [email, setEmail] = useState('');
+
+  // console.log("user from attendene email is  ",email)
   //this is the variable of calculating the workin date 
   const[workingDate,setWorkingDate]=useState(0)
   const [attendanceData, setAttendanceData] = useState([]);
@@ -175,13 +179,13 @@ const [location, setLocation] = useState({});
 // console.log(daysOfMonth.length);
 const userData=[{date:"06-02-2024",checkInTime:"90:00Am",checkOutTime:"7:00pm"},{date:"07-02-2024",checkInTime:"90:00Am",checkOutTime:"6:00pm"},{date:"14-02-2024",checkInTime:"10:00Am",checkOutTime:"6:00pm"}]
 
-console.log(userData.length)
+// console.log(userData.length)
  const navigation=useNavigate()
  //function for uploding image 
 const uploadImage = async () => {
   try {
     await axios.post('http://localhost:7000/upload',{imageData,email});
-    console.log('Image uploaded successfully!');
+    // console.log('Image uploaded successfully!');
   } catch (error) {
     console.error('Error uploading image:', error);
   }
@@ -220,8 +224,7 @@ const uploadImage = async () => {
     video.pause();
     stream.getTracks().forEach(track => track.stop());
     document.body.removeChild(video);
-    await uploadImage()
-    // uploadToBackend(blob);
+    
     return dataUrl
   } catch (error) {
     console.error('Error capturing image:', error);
@@ -420,6 +423,8 @@ const locationurl=`https://maps.google.com/?q=${location.latitude},${location.lo
   useEffect(()=>{
     getAllImageurls()
   },[uploadImage])
+
+  //this function for checking user allready atttended tody or not 
   const getStatusUserAttendedAlready= async ()=>{
     try {
       const response=await fetch(`http://localhost:9000/attendance/test/${email}/${new Date().toDateString()}`)
@@ -454,7 +459,7 @@ const locationurl=`https://maps.google.com/?q=${location.latitude},${location.lo
     let lateCheckInCount = 0;
 
     attendanceData.forEach((value) => {
-      if (value.allAttendance[0].checkIn && new Date(`2000-01-01 ${value.allAttendance[0].checkIn}`) > new Date(`2000-01-01 10:15 AM`)) {
+      if (value.allAttendance[0].checkIn && new Date(`2000-01-01 ${value.allAttendance[0].checkIn}`) > new Date(`2000-01-01 10:15 AM`)&&value.allAttendance[0].date.split(" ")[1]=== new Date().toDateString().split(" ")[1]) {
         lateCheckInCount++;
       }
     });
@@ -526,7 +531,7 @@ useEffect(()=>{
     let checout=value.allAttendance[0].checkOut;
     const totalhour=new Date(`2000-01-01 ${checin}`)-new Date(`2000-01-01 ${checout}`)
     let exathour=Math.abs(Math.floor(totalhour/(1000 * 60 * 60)))
-    if(exathour<=5){
+    if(value.allAttendance[0].date.split(" ")[1]=== new Date().toDateString().split(" ")[1]&&exathour<=5){
       halfday++
     }
 
@@ -541,24 +546,54 @@ useEffect(()=>{
  // this is the function that count all absent date 
   
   useEffect(() => {
+    // if (attendanceData.length === 0) return;
+
+    // const lastCheckInDate = new Date(attendanceData[0].allAttendance[0].date); // Get the date of the last check-in
+    // const currentDate = new Date(); // Get the current date
+
+    // let nonWorkingDays = 0; // Initialize the count of non-working days
+    // let currentDateTemp = new Date(lastCheckInDate); // Start from the last check-in date
+
+    // // Loop until the temporary date reaches the current date
+    // while (currentDateTemp <= currentDate) {
+    //     const dayOfWeek = currentDateTemp.getDay(); // Get the day of the week (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
+    //     // Check if the day is a Saturday (6) or Sunday (0) or if it is a holiday
+    //     if (dayOfWeek === 0 || dayOfWeek === 6 || isHoliday(currentDateTemp)) {
+    //         nonWorkingDays++; // Increment the count of non-working days
+    //     }
+    //     currentDateTemp.setDate(currentDateTemp.getDate() + 1); // Move to the next day
+    // }
+    //  setAbsentDays(nonWorkingDays)
     if (attendanceData.length === 0) return;
 
-    const lastCheckInDate = new Date(attendanceData[0].allAttendance[0].date); // Get the date of the last check-in
     const currentDate = new Date(); // Get the current date
+    const currentMonth = currentDate.getMonth(); // Get the current month
 
     let nonWorkingDays = 0; // Initialize the count of non-working days
-    let currentDateTemp = new Date(lastCheckInDate); // Start from the last check-in date
 
-    // Loop until the temporary date reaches the current date
-    while (currentDateTemp <= currentDate) {
-        const dayOfWeek = currentDateTemp.getDay(); // Get the day of the week (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
-        // Check if the day is a Saturday (6) or Sunday (0) or if it is a holiday
-        if (dayOfWeek === 0 || dayOfWeek === 6 || isHoliday(currentDateTemp)) {
-            nonWorkingDays++; // Increment the count of non-working days
+    attendanceData.forEach(record => {
+        const month = new Date(record.allAttendance[0].date).getMonth(); // Get the month of each attendance record
+
+        if (month === currentMonth) { // Check if the record is in the current month
+            const lastCheckInDate = new Date(record.allAttendance[0].date); // Get the date of the last check-in
+            let currentDateTemp = new Date(lastCheckInDate); // Start from the last check-in date
+
+            // Loop until the temporary date reaches the current date
+            while (currentDateTemp <= currentDate) {
+                const dayOfWeek = currentDateTemp.getDay(); // Get the day of the week (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
+                
+                // Check if the day is a Saturday (6) or Sunday (0) or if it is a holiday
+                if (dayOfWeek === 0 || dayOfWeek === 6 || isHoliday(currentDateTemp)) {
+                    nonWorkingDays++; // Increment the count of non-working days
+                }
+                
+                currentDateTemp.setDate(currentDateTemp.getDate() + 1); // Move to the next day
+            }
         }
-        currentDateTemp.setDate(currentDateTemp.getDate() + 1); // Move to the next day
-    }
-     setAbsentDays(nonWorkingDays)
+    });
+
+    setAbsentDays(nonWorkingDays);
+
     // Here you can do something with the nonWorkingDays variable, such as updating state or displaying it in the UI
 }, [attendanceData]);
 
@@ -585,10 +620,10 @@ function isHoliday(date) {
 //   fetchImage();
 // }, []);
 
-// console.log(attendanceData)
+// console.log("userdata",attendanceData)
 // console.log(imageData)
 
-console.log("imagesurls===>",imageurls )
+// console.log("imagesurls===>",imageurls )
   return (
     <>
     <div style={{display:"flex", backgroundColor:"white",color:"black", flexDirection:"column",height:'',gap:"2vh",}} > 
@@ -651,8 +686,8 @@ console.log("imagesurls===>",imageurls )
 
       <p>Total day in This month  <span style={{width:"10vw",padding:"1vh",color:"black"}}>{totalDaysInMonth}</span></p>
 
-       {/* <p>Total working day <span style={{width:"10vw",padding:"1vh",color:"black"}}>{totalworkinDay}</span></p> */}
-       <p>Total HalfDays work <span style={{width:"10vw",padding:"1vh",color:"black"}}>{totalHalfDays}</span></p>
+       <p>Total working day <span style={{width:"10vw",padding:"1vh",color:"black"}}>{totalworkinDay}</span></p>
+       {/* <p>Total AbsentDays: {absentDays }</p> */}
 
       </div>
 
@@ -660,8 +695,8 @@ console.log("imagesurls===>",imageurls )
       <div>
 
       <p>Total Late Check-Ins: {totalLateCheckIns}</p>
-        
-      <p>Total AbsentDays: {absentDays}</p>
+      <p>Total HalfDays work <span style={{width:"10vw",padding:"1vh",color:"black"}}>{totalHalfDays}</span></p>
+
       
       </div>
 
@@ -685,13 +720,13 @@ console.log("imagesurls===>",imageurls )
       <tbody cellPadding={0} outline="none"  style={{borderColor:"#d7d7db", backgroundColor:"#dfdfdf"}}>
         {daysOfMonth.map(day => {
           const date = new Date(); // Current date
-
+          let totalWorkingDays=0
           const dateObj = new Date(new Date().getFullYear(), new Date().getMonth(), day);
           const dayName = dayNames[dateObj.getDay()];
           const formattedDay = day.toString().padStart(2, '0'); // Ensure day starts with 0 if less than 10
 
           const formattedDate = `${dayName.slice(0, 3)} ${dateObj.toLocaleString('default', { month: 'short' })} ${formattedDay} ${dateObj.getFullYear()}`;
-          console.log('formateddate====>',formattedDate)
+          // console.log('formateddate====>',formattedDate)
           let currenCheckIntime='';
           let currentCheckOutTime='';
           let latitude='';
@@ -716,22 +751,22 @@ console.log("imagesurls===>",imageurls )
 
           imageurls.map((value)=>{
             let testurl=value.imagePath
-            console.log("test url",testurl)
+            // console.log("test url",testurl)
             const parts = testurl.split('_')[0].split('\\')[1]; 
-            console.log("parts",parts)
+            // console.log("parts",parts)
             const formattedDatenow = parts.replace(/-/g, ' ');
-            console.log("formatteddata",formattedDatenow)
+            // console.log("formatteddata",formattedDatenow)
             const email = testurl.split('_')[1].split('.')[0];
-            console.log("email",email)
+            // console.log("email",email)
             const updatedurl = testurl.split('\\')[1];
-            console.log("updatedurl",updatedurl)
+            // console.log("updatedurl",updatedurl)
             
 
             
             if(formattedDatenow===formattedDate &&email===email){
               img_url=updatedurl
             }
-            console.log("img_url",img_url)
+            // console.log("img_url",img_url)
             
           })
           // console.log("imagesurl ",img_url)
@@ -739,7 +774,7 @@ console.log("imagesurls===>",imageurls )
           // Check if check-in time is greater than 10:15
           const isLateCheckIn = currenCheckIntime && new Date(`2000-01-01 ${currenCheckIntime}`) > new Date(`2000-01-01 10:15 AM`);
           const totalhour=new Date(`2000-01-01 ${currenCheckIntime}`)-new Date(`2000-01-01 ${currentCheckOutTime}`)
-          console.log("total working hour in onle day",Math.floor(totalhour/(1000 * 60 * 60)))
+          // console.log("total working hour in onle day",Math.floor(totalhour/(1000 * 60 * 60)))
           if (dayName === 'Sunday' || (dayName === 'Saturday' && (Math.ceil(day / 7) === 2 || Math.ceil(day / 7) === 4))) {
             rowStyle = { backgroundColor: '#8AFF8A' };
 
@@ -749,7 +784,7 @@ console.log("imagesurls===>",imageurls )
             // Set red background color for Sundays and 2nd/4th Saturdays
           }
           
-
+          
           const userDataForDay = currentMonthData[day]; // Assuming currentMonthData is structured appropriately
           const locationurl=`https://maps.google.com/?q=${parseFloat(latitude)},${parseFloat(longitude)}`
           // console.log(locationurl)
@@ -779,7 +814,7 @@ console.log("imagesurls===>",imageurls )
           e.currentTarget.style.transform='scale(1)'
         }}
         />
-     
+       <td>total day{totalWorkingDays}</td>
        </div>
   ) : (
     <> </>
@@ -822,6 +857,7 @@ console.log("imagesurls===>",imageurls )
 }
 
 export default AttendanceDashboard;
+
 
 
 
@@ -1070,7 +1106,7 @@ export default AttendanceDashboard;
 //         <div style={{ backgroundColor: "pink", width: "100%" ,justifyContent:"center"}}>
 //         <h2 style={{borderColor:"black",borderWidth:"1vh"}}>Date</h2>
 
-//           {userAttendence.map((entry, index) => (
+//           {userAttendence.map((entry, index) => ( 
 
 //             <>
 //               <p>{entry.date}</p>

@@ -1,4 +1,6 @@
-// App.js
+
+
+// export default App;
 import React, {  useEffect, useState ,Image} from 'react';
 // import CalendarComponent from './component/CalendarComponent';
 import Login from './component/Login';
@@ -16,7 +18,7 @@ import PageNoteFaund from './pages/PageNoteFaund';
 // import LogoImage from "./assets/LogoDesign.jpg.png"
 
 const App = () => {
-  const [myIpAddress, setMyIpAddress] = useState(['2401:4900:1f39:36ad:9da6:a3b5:3229:8f1f','2401:4900:1c5a:a03c:fd95:1c0c:1383:1020','2401:4900:1c5a:eb12:8562:5d31:4c30:9806','2401:4900:1c5a:eb12:888d:2d6c:4bf6:8c77','2401:4900:1c5d:63e6:5c7d:bcb6:42b8:5854','2401:4900:1c5d:3bdb:6cfd:1202:b977:256','2401:4900:1c5d:3bdb:516:10ac:c464:b658','2401:4900:1c5d:63e6:b0d1:2c11:aff5:75ab']);
+  const [myIpAddress, setMyIpAddress] = useState(['2401:4900:1c5b:303b:3def:a27b:9500:eb55','2401:4900:1c5a:a03c:fd95:1c0c:1383:1020','2401:4900:1c5a:eb12:8562:5d31:4c30:9806','2401:4900:1c5a:eb12:888d:2d6c:4bf6:8c77','2401:4900:1c5d:63e6:5c7d:bcb6:42b8:5854','2401:4900:1c5d:3bdb:6cfd:1202:b977:256','2401:4900:1c5d:3bdb:516:10ac:c464:b658','2401:4900:1c5d:63e6:b0d1:2c11:aff5:75ab']);
   const[ip,setIp]=useState('');
   const[isDesktop,setIsDesktop]=useState(false);
    useEffect(()=>{
@@ -45,7 +47,9 @@ const App = () => {
    }
    useEffect(() => {
     // Check if user's IP is included in the allowed list
+    // const isUserAllowed = true;
     const isUserAllowed = myIpAddress.includes(ip);
+// 
     
     setIsDesktop(isUserAllowed && window.innerWidth > 400 && window.innerHeight > 300);
   }, [ip, myIpAddress]);

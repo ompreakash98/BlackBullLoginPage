@@ -7,7 +7,7 @@ export default function LogOut() {
   const { LogOutUser } = useAuth()
      
   useEffect(() => {
-    console.log("this is from logout")
+    // console.log("this is from logout")
     LogOutUser();
 
   },[LogOutUser,token])

@@ -4,7 +4,7 @@ export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [token, setToken] = useState(localStorage.getItem("token"))
-    // console.log("token from auth",token)
+    console.log("token from auth",token)
     const[user,setUser]=useState("")
     const storeTokenInLS = (serverToken) => {
 
@@ -25,7 +25,7 @@ export const AuthProvider = ({ children }) => {
     const userAuthantication= async ()=>{
         try {
             const response= await fetch('http://localhost:5000/api/auth/user',{
-             method:"GET"   ,
+             method:"GET",
              headers:{
                Authorization:`Bearer ${token}`,
              },
@@ -34,7 +34,7 @@ export const AuthProvider = ({ children }) => {
             if(response.ok){
                 const data =await response.json()
                 setUser(data);
-                // console.log("user data from Auth ",data)
+                console.log("user data from Auth",data)
             }
         } catch (error) {
            console.error('error fetching user data') 
@@ -43,6 +43,8 @@ export const AuthProvider = ({ children }) => {
     useEffect(()=>{
         userAuthantication()
     },[])
+
+   
 
     return <AuthContext.Provider value={{ isLoggedIn, storeTokenInLS, LogOutUser,user }}>
         {children}
