@@ -16,9 +16,9 @@ import AttendanceDashboard from './component/AttendanceDashboard';
 import PrivateRoute from './component/PrivateRoute';
 import PageNoteFaund from './pages/PageNoteFaund';
 // import LogoImage from "./assets/LogoDesign.jpg.png"
-
+import AdminPage from'./pages/AdminPage'
 const App = () => {
-  const [myIpAddress, setMyIpAddress] = useState(['2401:4900:1c5b:303b:3def:a27b:9500:eb55','2401:4900:1c5a:a03c:fd95:1c0c:1383:1020','2401:4900:1c5a:eb12:8562:5d31:4c30:9806','2401:4900:1c5a:eb12:888d:2d6c:4bf6:8c77','2401:4900:1c5d:63e6:5c7d:bcb6:42b8:5854','2401:4900:1c5d:3bdb:6cfd:1202:b977:256','2401:4900:1c5d:3bdb:516:10ac:c464:b658','2401:4900:1c5d:63e6:b0d1:2c11:aff5:75ab']);
+  const [myIpAddress, setMyIpAddress] = useState(['2401:4900:1c5c:bd0e:855e:eca:4909:c299','2401:4900:1c5a:a03c:fd95:1c0c:1383:1020','2401:4900:1c5a:eb12:8562:5d31:4c30:9806','2401:4900:1c5a:eb12:888d:2d6c:4bf6:8c77','2401:4900:1c5d:63e6:5c7d:bcb6:42b8:5854','2401:4900:1c5d:3bdb:6cfd:1202:b977:256','2401:4900:1c5d:3bdb:516:10ac:c464:b658','2401:4900:1c5d:63e6:b0d1:2c11:aff5:75ab']);
   const[ip,setIp]=useState('');
   const[isDesktop,setIsDesktop]=useState(false);
    useEffect(()=>{
@@ -53,6 +53,13 @@ const App = () => {
     
     setIsDesktop(isUserAllowed && window.innerWidth > 400 && window.innerHeight > 300);
   }, [ip, myIpAddress]);
+  
+  const handleSubmitte=(e)=>{
+  
+  }
+
+
+  
   return (
     <>
       {isDesktop?(
@@ -63,6 +70,7 @@ const App = () => {
         
           <NavBar/>
           <Routes>
+            
             <Route path="/" element={< Login />} />
             <Route path="/home" element={< HomePage />} />
             <Route path="/logout" element={<LogOut />} />
@@ -72,7 +80,10 @@ const App = () => {
            
             <Route path='/private' element={<PrivateRoute/>}>             
             <Route path="AttendanceDashboard" element={<AttendanceDashboard/>} />
+            <Route path='admin' element={<AdminPage/>}/>
+
             </Route>
+
             <Route path="*" element={<PageNoteFaund />} />
 
           </Routes>
@@ -86,7 +97,8 @@ const App = () => {
         </>
       )}
        <div style={{display:"flex",flexDirection:"column",flexWrap:"wrap"}}>
-      <h1 style={{fontSize:"2vh"}}>IP Address:{ip}</h1>
+        <h1 style={{fontSize:"2vh"}}>IP Address:{ip}</h1>
+      
       </div>
       
     </>

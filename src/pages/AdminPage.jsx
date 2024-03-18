@@ -1,127 +1,4 @@
 
-// import React, { useState } from 'react';
-
-// function AttendanceDashboard() {
-//   const[current,setCurrentDate]=useState(new Date())
-//   const [email, setEmail] = useState('');
-//   const [checkInTime, setCheckInTime] = useState(current.toLocaleTimeString().split(" "));
-//   const [checkOutTime, setCheckOutTime] = useState(current.toLocaleTimeString().split(" "));
-//   const [attendanceData, setAttendanceData] = useState([]);
-
-//   const handleEmailChange = (e) => {
-//     setEmail(e.target.value);
-//   };
-
-//   const handleCheckInChange = (e) => {
-//     setCheckInTime(e.target.value);
-//   };
-
-//   const handleCheckOutChange = (e) => {
-//     setCheckOutTime(e.target.value);
-//   };
-
-//   const handleCheckIn = async () => {
-//     try {
-//       const response = await fetch('http://localhost:3001/attendance/checkIn', {
-//         method: 'POST',
-//         headers: {
-//           'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({
-//           employeeEmail: email,
-//           allAttendance: [{
-//             date: new Date().toISOString().split('T')[0],
-//             checkIn: checkInTime,
-//             checkOut: '',
-//           }],
-//         }),
-//       });
-//       if (response.ok) {
-//         console.log('Check-in successful.');
-//       } else {
-//         console.error('Check-in failed.');
-//       }
-//     } catch (error) {
-//       console.error('Error during check-in:', error);
-//     }
-//   };
-
-//   const handleCheckOut = async () => {
-//     try {
-//       const response = await fetch('http://localhost:3001/attendance/checkIn', {
-//         method: 'PATCH',
-//         headers: {
-//           'Content-Type': 'application/json',
-//         },
-//         body: JSON.stringify({
-//           employeeEmail: email,
-//           allAttendance: [{
-//             date: new Date().toISOString().split('T')[0],
-//             checkOut: checkOutTime,
-//           }],
-//         }),
-//       });
-//       if (response.ok) {
-//         console.log('Check-out successful.');
-//       } else {
-//         console.error('Check-out failed.');
-//       }
-//     } catch (error) {
-//       console.error('Error during check-out:', error);
-//     }
-//   };
-
-//   const getAttendanceData = async () => {
-//     try {
-//       const response = await fetch(`http://localhost:3001/api/attendance/${email}`);
-//       const data = await response.json();
-//       setAttendanceData(data);
-//     } catch (error) {
-//       console.error('Error fetching attendance data:', error);
-//     }
-//   };
-//   console.log(attendanceData)
-//   return (
-//     <div>
-//       <h2>Attendance Dashboard</h2>
-//       <div>
-//         <label htmlFor="email">Enter Email:</label>
-//         <input type="text" id="email" value={email} onChange={handleEmailChange} />
-//         <button onClick={getAttendanceData}>Get Attendance Data</button>
-//       </div>
-//       <div>
-//         <label htmlFor="checkInTime">Check In Time:</label>
-//         <input type="text" id="checkInTime" value={checkInTime} onChange={handleCheckInChange} />
-//         <button onClick={handleCheckIn}>Check In</button>
-//       </div>
-//       <div>
-//         <label htmlFor="checkOutTime">Check Out Time:</label>
-//         <input type="text" id="checkOutTime" value={checkOutTime} onChange={handleCheckOutChange} />
-//         <button onClick={handleCheckOut}>Check Out</button>
-//       </div>
-//       <table border={2}>
-//         <thead>
-//           <tr>
-//             <th>Date</th>
-//             <th>Check In</th>
-//             <th>Check Out</th>
-//           </tr>
-//         </thead>
-//         <tbody>
-//           {attendanceData.map((attendance) => (
-//             <tr key={attendance._id}>
-//               <td>{attendance.allAttendance[0].date}</td>
-//               <td>{attendance.allAttendance[0].checkIn}</td>
-//               <td>{attendance.allAttendance[0].checkOut}</td>
-//             </tr>
-//           ))}
-//         </tbody>
-//       </table>
-//     </div>
-//   );
-// }
-
-// export default AttendanceDashboard;
 
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../store/Auth';
@@ -134,7 +11,7 @@ import Camera from '../pages/Camera';
 import axios from 'axios';
 import TestImageUploade from '../pages/TestImageUploade';
 
-function AttendanceDashboard() {
+function AdminPage() {
   const [imageData, setImageData] = useState('');
   const[fetchImageData,setFetchImageData]=useState([])
   const[imageurls,setImagesUrls]=useState([])
@@ -154,7 +31,6 @@ function AttendanceDashboard() {
  
   const [email, setEmail] = useState(user.userData.email);
   // const [email, setEmail] = useState('');
-  const[isAdmin,setIsAdmin]=useState(user.userData.isAdmin)
 
   // console.log("user from attendene email is  ",email)
   //this is the variable of calculating the workin date 
@@ -183,7 +59,6 @@ const userData=[{date:"06-02-2024",checkInTime:"90:00Am",checkOutTime:"7:00pm"},
 // console.log(userData.length)
  const navigation=useNavigate()
  //function for uploding image 
- 
 const uploadImage = async () => {
   try {
     await axios.post('http://localhost:7000/upload',{imageData,email});
@@ -250,20 +125,7 @@ const uploadToBackend = async () => {
 };
 
 
-// useEffect(() => {
-//   const fetchImage = async () => {
-//     try {
-//       const response = await axios.get(`http://localhost:9000/fetch/alluserImage`); // Replace 123 with the actual image ID
-//       // console.log(response.data.imageData)
-      
-//       // setFetchImageData(response.data.imageData);
-//     } catch (error) {
-//       console.error('Error fetching image:', error);
-//     }
-//   };
 
-//   fetchImage();
-// }, []);
  
   const countWorkingDay=()=>{
     
@@ -424,7 +286,7 @@ const locationurl=`https://maps.google.com/?q=${location.latitude},${location.lo
   // 
   useEffect(()=>{
     getAllImageurls()
-  },[uploadImage])
+  },[uploadImage,email])
 
   //this function for checking user allready atttended tody or not 
   const getStatusUserAttendedAlready= async ()=>{
@@ -448,7 +310,7 @@ const locationurl=`https://maps.google.com/?q=${location.latitude},${location.lo
     getAttendanceData ()
     // setShowButton(checkAttendenceForToday())
     
-  },[])
+  },[email])
   //this is the function that check  user attended allready or not
   useEffect(()=>{
     getAttendanceData ()
@@ -517,7 +379,7 @@ function countSaturdaySundy(){
     currenDate.setDate(currenDate.getDate()+1);
   }
 
-  // console.log("total day from countday",totalCount)
+  console.log("total day from countday",totalCount)
 
 }
 
@@ -548,24 +410,7 @@ useEffect(()=>{
  // this is the function that count all absent date 
   
   useEffect(() => {
-    // if (attendanceData.length === 0) return;
-
-    // const lastCheckInDate = new Date(attendanceData[0].allAttendance[0].date); // Get the date of the last check-in
-    // const currentDate = new Date(); // Get the current date
-
-    // let nonWorkingDays = 0; // Initialize the count of non-working days
-    // let currentDateTemp = new Date(lastCheckInDate); // Start from the last check-in date
-
-    // // Loop until the temporary date reaches the current date
-    // while (currentDateTemp <= currentDate) {
-    //     const dayOfWeek = currentDateTemp.getDay(); // Get the day of the week (0 for Sunday, 1 for Monday, ..., 6 for Saturday)
-    //     // Check if the day is a Saturday (6) or Sunday (0) or if it is a holiday
-    //     if (dayOfWeek === 0 || dayOfWeek === 6 || isHoliday(currentDateTemp)) {
-    //         nonWorkingDays++; // Increment the count of non-working days
-    //     }
-    //     currentDateTemp.setDate(currentDateTemp.getDate() + 1); // Move to the next day
-    // }
-    //  setAbsentDays(nonWorkingDays)
+   
     if (attendanceData.length === 0) return;
 
     const currentDate = new Date(); // Get the current date
@@ -606,11 +451,7 @@ function isHoliday(date) {
     // For the sake of simplicity, let's assume there is no holiday in this example
     return false;
 }
-useEffect(()=>{
-   if(isAdmin){
-    navigation("/private/admin")
-   }
-},[])
+
 // useEffect(() => {
 //   const fetchImage = async () => {
 //     try {
@@ -632,28 +473,32 @@ useEffect(()=>{
 // console.log("imagesurls===>",imageurls )
   return (
     <>
+    <div style={{display:"flex",justifyContent:"center"}}>
+    </div>
     <div style={{display:"flex", backgroundColor:"white",color:"black", flexDirection:"column",height:'',gap:"2vh",}} > 
-      <div style={{visibility:"hidden"}}>
+           <h1>WELCOME TO ADMIN PAGE</h1>
+
+      <div style={{visibility:"" ,display:"flex",justifyContent:"center" ,gap:"1vh"}}>
         <label htmlFor="email">Enter Email:</label>
-        <input type="text" id="email" value={email} onChange={handleEmailChange} />
-        <button onClick={getAttendanceData}>Get Attendance Data</button>
+        <input type="text" id="email" value={email} onChange={handleEmailChange} style={{padding:'1vh'}} />
+        <button onClick={getAttendanceData}>check Atendence</button>
       </div>
 
       <div style={{display:"flex", justifyContent:"center",alignItems:"center", position:"absolute", marginLeft:"50%",marginTop:"10vh"}}>
       {/* <Camera/> */}
        {/* <div><img src={imageData} alt="" style={{height:"8vh",width:"8vh", borderRadius:"50%"}}/></div>    */}
        {/* <button onClick={captureImage}>Capture Image</button> */}
-       <a href=''> <button onClick={uploadImage} style={{padding:"1vh",marginTop:"5vh"}}>Upload Image</button></a>
+       {/* <a href=''> <button onClick={uploadImage}>Upload Image</button></a> */}
       </div>
      
-     {showButton? <div style={{display:"flex", justifyContent:"end", marginLeft:"10vh" }}>
+     {showButton? <div style={{display:"flex", justifyContent:"end", marginLeft:"10vh"}}>
         {/* <label htmlFor="checkInTime">Check In Time:</label>
         <input type="text" id="checkInTime" value={checkInTime} onChange={handleCheckInChange} /> */}
        <>
         <button onClick={()=>{
           handleCheckIn()
           
-        }}style={{padding:"3vh", backgroundColor:"#d7d7db",borderRadius:"10vh", color:"green" ,boxShadow:"1px 1px 10px green",marginRight:"10vh",marginTop:"8vh" }}>Check In</button>
+        }}style={{visibility:"hidden",padding:"3vh", backgroundColor:"#d7d7db",borderRadius:"10vh", color:"green" ,boxShadow:"1px 1px 10px green",marginRight:"10vh",marginTop:"8vh"}}>Check In</button>
        
       </>
 
@@ -662,28 +507,11 @@ useEffect(()=>{
         {/* <label htmlFor="checkOutTime">Check Out Time:</label>
         <input type="text" id="checkOutTime" value={checkOutTime} onChange={handleCheckOutChange} /> */}
        <a style={{ color: "white" }} href='/logout' > 
-        <button onClick={handleCheckOut}style={{backgroundColor:"#d7d7db",padding:"3vh", color:"red",borderRadius:"10vh", boxShadow:"1px 1px 10px black", marginTop:"8vh",marginBottom:""}}>Check Out</button>
+        <button onClick={handleCheckOut}style={{visibility:"hidden",backgroundColor:"#d7d7db",padding:"3vh", color:"red",borderRadius:"10vh", boxShadow:"1px 1px 10px black", marginTop:"0",marginBottom:""}}>Check Out</button>
       </a>
       </div>
       }
-      {/* <table cellPadding={0} outline="none"  style={{borderColor:"#d7d7db", backgroundColor:"#dfdfdf"}}>
-        <thead>
-          <tr>
-            <th style={{backgroundColor:"#a2a2a2",padding:"1vh", color:"black"}}>Date</th>
-            <th style={{backgroundColor:"#a2a2a2",padding:"1vh"}}>Check In</th>
-            <th style={{backgroundColor:"#a2a2a2",padding:"1vh"}}>Check Out</th>
-          </tr>
-        </thead>
-        <tbody>
-          {attendanceData.map((attendance) => (
-            <tr key={attendance._id}>
-              <td style={{backgroundColor:"#d7d7db",padding:"1vh", color:"black"}}>{attendance.allAttendance[0].date}</td>
-              <td style={{backgroundColor:"#d7d7db",padding:"1vh"}}>{attendance.allAttendance[0].checkIn}</td>
-              <td style={{backgroundColor:"#d7d7db",padding:"1vh"}}>{attendance.allAttendance[0].checkOut}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table> */}
+      
     </div>
 
     <div>
@@ -769,13 +597,13 @@ useEffect(()=>{
             
 
             
-            if(formattedDatenow===formattedDate && email===email){
+            if(formattedDatenow===formattedDate &&email===email){
               img_url=updatedurl
             }
             // console.log("img_url",img_url)
             
           })
-          // console.log("imagesurl from attendence ",img_url)
+          // console.log("imagesurl ",img_url)
 
           // Check if check-in time is greater than 10:15
           const isLateCheckIn = currenCheckIntime && new Date(`2000-01-01 ${currenCheckIntime}`) > new Date(`2000-01-01 10:15 AM`);
@@ -815,7 +643,7 @@ const seconds = Math.floor((timeDiffInMillis % (1000 * 60)) / 1000);
               <td style={{ padding:"1vh",color: isLateCheckIn ? 'red' : 'green' }}>{currenCheckIntime}</td>
               <td style={{padding:"1vh"}}>{currentCheckOutTime}</td>
               <td><a href={locationurl}>{showlocationbutton?"checkLocation":""}</a></td>
-              <td style={{padding:"1vh"}}>{showlocationbutton?hours+'hours '+minutes+" minunts":""}</td>
+              <td style={{padding:"1vh"}}>{showlocationbutton?hours+' hours '+minutes+" minunts":""}</td>
               <td style={{padding:"1vh"}}>
         {showlocationbutton ? (
        <div>
@@ -849,32 +677,16 @@ const seconds = Math.floor((timeDiffInMillis % (1000 * 60)) / 1000);
       {imageData && <img src={imageData} alt="Captured" />}
     
 
-      {/* <div>
-      {imageData && (
-        <img src={`data:image/png;base64,${imageData}`} alt="Uploaded" />
-        
-      )}
-    </div> */}
-    {/* <div>
-        {
-         fetchImageData.map((imagedata)=>{
-            return (
-            <>
-                <img src={`${imagedata.data}`} alt="Uploaded" />
-            </>)
-            
-         })
-        }
-    </div> */}
+      
+    
 
     </div>
-    {/* <TestImageUploade/>
-     */}
+   
     </>
   );
 }
 
-export default AttendanceDashboard;
+export default AdminPage;
 
 
 

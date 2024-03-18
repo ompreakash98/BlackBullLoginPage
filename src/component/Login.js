@@ -107,7 +107,7 @@ function Login() {
   const [location, setLocation] = useState({});
 
   const navigate = useNavigate()
-  const { storeTokenInLS } = useAuth();
+  const { storeTokenInLS, isAdmin } = useAuth();
   function handleLocationClick() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(success, error);
@@ -123,12 +123,12 @@ function Login() {
     // console.log(`Latitude: ${latitude}, Longitude: ${longitude}`);
 
     // Make API call to OpenWeatherMap
-   
+
   }
 
   function error() {
     console.log("Unable to retrieve your location");
-  } 
+  }
 
 
 
@@ -162,7 +162,7 @@ function Login() {
   };
 
   const handleSubmit = async (e) => {
-   
+
     e.preventDefault();
     try {
       // const api='http://localhost:5000/api/auth/register'
@@ -191,9 +191,10 @@ function Login() {
           email: '',
           password: '',
         })
+
+        window.location.reload()
         
-          window.location.reload()
-      
+
 
       }
       else {
@@ -207,29 +208,33 @@ function Login() {
     // console.log('Submitted user:', user);
   };
 
-  useEffect(()=>{
+  useEffect(() => {
     handleLocationClick()
-  },[])
-const locationurl=`https://maps.google.com/?q=${location.latitude},${location.longitude}`
+  }, [])
+  const locationurl = `https://maps.google.com/?q=${location.latitude},${location.longitude}`
+
+  useEffect(()=>{
+    console.log("isadmn from login ",isAdmin)
+  },[user])
   return (
     <>
-    <div>
-        
-      
-   
-    </div>
+      <div>
+
+
+
+      </div>
       <div style={{ display: "flex", flexDirection: "row", backgroundColor: "white", justifyContent: "center", alignItems: "center", height: "95vh", boxShadow: "5px 5px 5px 10px white" }}>
 
-        <form onSubmit={handleSubmit} style={{ backgroundColor: "white", padding: "1vh", borderRadius: "2vh", gap: "2vh", boxShadow: "1px 1px 10px black", display:"flex", flexDirection:"column", justifyContent:"flex-start" }}>
-        <CgProfile />
-          
-          <span style={{ color: "blue", display:"flex"}}>Login</span>
-          
+        <form onSubmit={handleSubmit} style={{ backgroundColor: "white", padding: "1vh", borderRadius: "2vh", gap: "2vh", boxShadow: "1px 1px 10px black", display: "flex", flexDirection: "column", justifyContent: "flex-start" }}>
+          <CgProfile />
+
+          <span style={{ color: "blue", display: "flex" }}>Login</span>
+
 
           <div style={{ display: "flex", flexDirection: "column" }}>
             <label htmlFor='email'>Email</label>
             <input
-            style={{padding:"1vh", backgroundColor:"#f5f5f5"}}
+              style={{ padding: "1vh", backgroundColor: "#f5f5f5" }}
               type='email'
               name='email'
               placeholder='Enter your email'
@@ -244,7 +249,7 @@ const locationurl=`https://maps.google.com/?q=${location.latitude},${location.lo
           <div style={{ display: "flex", flexDirection: "column" }}>
             <label htmlFor='password'>Password</label>
             <input
-            style={{padding:"1vh" ,backgroundColor:"#f5f5f5"}}
+              style={{ padding: "1vh", backgroundColor: "#f5f5f5" }}
               type='password'
               name='password'
               placeholder='Enter password'
@@ -255,10 +260,10 @@ const locationurl=`https://maps.google.com/?q=${location.latitude},${location.lo
               autoCapitalize='off'
             />
           </div>
-          <div style={{display:"flex", justifyContent:"end"}}>
-            <Link to='/Register' style={{textDecoration:"none", color:"red"}}>Not Register?</Link>
+          <div style={{ display: "flex", justifyContent: "end" }}>
+            <Link to='/Register' style={{ textDecoration: "none", color: "red" }}>Not Register?</Link>
           </div>
-         <a href='/private/AttendanceDashboard'><button type='submit' style={{padding:"1vh",} }>Login Now</button></a> 
+          <a href='/private/AttendanceDashboard'><button type='submit' style={{ padding: "1vh", }}>Login Now</button></a>
         </form>
       </div>
 
